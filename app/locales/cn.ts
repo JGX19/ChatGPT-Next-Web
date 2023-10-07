@@ -17,6 +17,29 @@ const cn = {
     Confirm: "确认",
     Later: "稍后再说",
   },
+  Login: {
+    Title: "登录 Ai食品圈",
+    Tips: "新用户?",
+    Register: "注册账号",
+    Tabs: [
+      {
+        Name: "密码登录",
+        Input1: "在此处填写手机号",
+        Input2: "在此处填写密码",
+        Confirm: "登录 ",
+      },
+      {
+        Name: "短信登录",
+        Input1: "在此处填写手机号",
+        Input2: "在此处填写验证码",
+        Verify: "点击验证",
+        Confirm: "登录 ",
+      },
+    ],
+    Legal: "登陆前我们默认你已知晓并同意",
+    LegalLink: "《服务条款》",
+    FindPassword: "找回密码",
+  },
   ChatItem: {
     ChatItemCount: (count: number) => `${count} 条对话`,
   },
