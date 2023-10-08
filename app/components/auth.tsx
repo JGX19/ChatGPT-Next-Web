@@ -24,43 +24,13 @@ export function AuthPage() {
   }, []);
 
   return (
-    // <div className={styles["auth-page"]}>
-    //   <div className={`no-dark ${styles["auth-logo"]}`}>
-    //     <BotIcon />
-    //   </div>
-
-    //   <div className={styles["auth-title"]}>{Locale.Auth.Title}</div>
-    //   <div className={styles["auth-tips"]}>{Locale.Auth.Tips}</div>
-
-    //   <input
-    //     className={styles["auth-input"]}
-    //     type="password"
-    //     placeholder={Locale.Auth.Input}
-    //     value={access.accessCode}
-    //     onChange={(e) => {
-    //       access.updateCode(e.currentTarget.value);
-    //     }}
-    //   />
-
-    //   <div className={styles["auth-actions"]}>
-    //     <IconButton
-    //       text={Locale.Auth.Confirm}
-    //       type="primary"
-    //       onClick={goHome}
-    //     />
-    //     <IconButton text={Locale.Auth.Later} onClick={goHome} />
-    //   </div>
-    // </div>
     <div className={styles["auth-page"]}>
       <div className={`no-dark ${styles["auth-logo"]}`}>
         <BotIcon />
       </div>
 
-      <div className={styles["auth-title"]}>{Locale.Login.Title}</div>
-      <div className={styles["auth-tips"]}>
-        {Locale.Login.Tips}
-        <a href="">{Locale.Login.Register}</a>
-      </div>
+      <div className={styles["auth-title"]}>{Locale.Auth.Title}</div>
+      <div className={styles["auth-tips"]}>{Locale.Auth.Tips}</div>
 
       <input
         className={styles["auth-input"]}

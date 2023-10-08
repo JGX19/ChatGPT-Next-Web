@@ -26,9 +26,12 @@ import {
 import { SideBar } from "./sidebar";
 import { useAppConfig } from "../store/config";
 import { AuthPage } from "./auth";
+import { LoginPage } from "./login";
 import { getClientConfig } from "../config/client";
 import { api } from "../client/api";
 import { useAccessStore } from "../store";
+import { useNavigate } from "react-router-dom";
+import { Navigate } from "react-router-dom";
 
 export function Loading(props: { noLogo?: boolean }) {
   return (
@@ -119,16 +122,31 @@ const loadAsyncGoogleFont = () => {
   document.head.appendChild(linkEl);
 };
 
+const checkToken = (navigate) => {
+  const token = localStorage.getItem("token");
+  if (token === "1") {
+    console.log(666);
+  } else {
+    navigate(Path.Login);
+  }
+};
+
 function Screen() {
   const config = useAppConfig();
   const location = useLocation();
-  const isHome = location.pathname === Path.Home;
-  const isAuth = location.pathname === Path.Auth;
+  const navigate = useNavigate();
   const isMobileScreen = useMobileScreen();
 
   useEffect(() => {
     loadAsyncGoogleFont();
+    checkToken(navigate);
   }, []);
+
+  const isHome = location.pathname === Path.Home;
+  const isAuth = location.pathname === Path.Auth;
+  const isLogin = location.pathname === Path.Login;
+  console.log("--------------------");
+  console.log(isHome, isAuth, location.pathname, Path.Auth, 8888);
 
   return (
     <div
@@ -141,9 +159,9 @@ function Screen() {
         } ${getLang() === "ar" ? styles["rtl-screen"] : ""}`
       }
     >
-      {isAuth ? (
+      {isLogin ? (
         <>
-          <AuthPage />
+          <LoginPage />
         </>
       ) : (
         <>
