@@ -1,4 +1,5 @@
 import styles from "./login.module.scss";
+import "./login.css";
 import { IconButton } from "./button";
 
 import { useNavigate } from "react-router-dom";
@@ -13,11 +14,21 @@ import { getClientConfig } from "../config/client";
 import { api } from "../client/api";
 
 import { React } from "react";
-import { LockOutlined, UserOutlined } from "@ant-design/icons";
-import { ConfigProvider, Tabs, Button, Checkbox, Form, Input } from "antd";
+import { LockOutlined, MobileOutlined, MailOutlined } from "@ant-design/icons";
+import {
+  ConfigProvider,
+  Tabs,
+  Button,
+  Checkbox,
+  Form,
+  Input,
+  message,
+} from "antd";
+import { Get, Post } from "../api/request/http";
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const [messageApi, contextHolder] = message.useMessage();
   const access = useAccessStore();
 
   const goHome = () => navigate(Path.Home);
@@ -28,28 +39,53 @@ export function LoginPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-  const onFinish = (values: any) => {
-    console.log("Received values of form: ", values);
+  const loginWithCode = async (values: any) => {
+    const res = await Post("/login", {
+      phone: values.phone,
+      password: values.password,
+    });
+    if (res.status === true) {
+      messageApi.open({
+        type: "success",
+        content: "登录成功",
+      });
+      // token本地存储
+      localStorage.setItem("token", res.data.token);
+      goHome();
+    } else {
+      messageApi.open({
+        type: "error",
+        content: res.msg,
+      });
+    }
+    console.log("Received values of form: ", values, res);
+  };
+  const loginWithSMS = (value: any) => {
+    Post("/login2", {
+      phone: "17561688631",
+      password: "88888888",
+    });
+    console.log("短信登录", value);
   };
   const loginForm = (textInfo) => {
     return (
-      <Form
-        name="normal_login"
-        className="login-form"
-        initialValues={{ remember: true }}
-        onFinish={onFinish}
-      >
-        <Form.Item
-          name="username"
-          rules={[{ required: true, message: textInfo.require1 }]}
-        >
-          <Input
-            prefix={<UserOutlined className="site-form-item-icon" />}
-            placeholder={textInfo.input1}
-          />
-        </Form.Item>
+      <>
         {textInfo.type === "password" ? (
-          <>
+          <Form
+            name="normal_login"
+            className="login-form"
+            initialValues={{ remember: true }}
+            onFinish={loginWithCode}
+          >
+            <Form.Item
+              name="phone"
+              rules={[{ required: true, message: textInfo.require1 }]}
+            >
+              <Input
+                prefix={<MobileOutlined className="site-form-item-icon" />}
+                placeholder={textInfo.input1}
+              />
+            </Form.Item>
             <Form.Item
               name="password"
               rules={[{ required: true, message: textInfo.require2 }]}
@@ -70,9 +106,23 @@ export function LoginPage() {
                 {textInfo.confirm}
               </Button>
             </Form.Item>
-          </>
+          </Form>
         ) : (
-          <>
+          <Form
+            name="normal_login"
+            className="login-form"
+            initialValues={{ remember: true }}
+            onFinish={loginWithSMS}
+          >
+            <Form.Item
+              name="phone"
+              rules={[{ required: true, message: textInfo.require1 }]}
+            >
+              <Input
+                prefix={<MobileOutlined className="site-form-item-icon" />}
+                placeholder={textInfo.input1}
+              />
+            </Form.Item>
             <Form.Item>
               <Button
                 type="primary"
@@ -92,9 +142,9 @@ export function LoginPage() {
                 {textInfo.confirm}
               </Button>
             </Form.Item>
-          </>
+          </Form>
         )}
-      </Form>
+      </>
     );
   };
   const generateTabList = () => {
@@ -108,10 +158,10 @@ export function LoginPage() {
       };
     });
   };
-  console.log(spqlogo);
 
   return (
     <div className={styles["auth-page"]}>
+      {contextHolder}
       <div className={`no-dark ${styles["auth-logo"]}`}>
         <img
           src={spqlogo.src}
@@ -139,6 +189,7 @@ export function LoginPage() {
             },
             Button: {
               defaultBg: "#1a859a",
+              defaultBorderColor: "#1a859a",
               defaultColor: "#fff",
               textHoverBg: "red",
             },

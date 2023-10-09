@@ -33,6 +33,9 @@ import { useAccessStore } from "../store";
 import { useNavigate } from "react-router-dom";
 import { Navigate } from "react-router-dom";
 
+import { Get, Post } from "../api/request/http";
+import { message } from "antd";
+
 export function Loading(props: { noLogo?: boolean }) {
   return (
     <div className={styles["loading-content"] + " no-dark"}>
@@ -43,6 +46,10 @@ export function Loading(props: { noLogo?: boolean }) {
 }
 
 const Settings = dynamic(async () => (await import("./settings")).Settings, {
+  loading: () => <Loading noLogo />,
+});
+
+const User = dynamic(async () => (await import("./user")).User, {
   loading: () => <Loading noLogo />,
 });
 
@@ -122,16 +129,36 @@ const loadAsyncGoogleFont = () => {
   document.head.appendChild(linkEl);
 };
 
-const checkToken = (navigate) => {
+const checkToken = async (navigate, messageApi) => {
   const token = localStorage.getItem("token");
-  if (token === "1") {
-    console.log(666);
+  if (token) {
+    const res = await Get("/api/user/verify", {
+      headers: {
+        Authorization: token,
+      },
+    });
+    if (res.status) {
+      messageApi.open({
+        type: "success",
+        content: res.msg,
+      });
+      console.log(res, "token验证结果");
+    } else {
+      messageApi.open({
+        type: "error",
+        content: res.msg,
+      });
+      navigate(Path.Login);
+    }
+    console.log(res, "token验证结果");
   } else {
     navigate(Path.Login);
   }
 };
 
 function Screen() {
+  const [messageApi, contextHolder] = message.useMessage();
+
   const config = useAppConfig();
   const location = useLocation();
   const navigate = useNavigate();
@@ -139,7 +166,7 @@ function Screen() {
 
   useEffect(() => {
     loadAsyncGoogleFont();
-    checkToken(navigate);
+    checkToken(navigate, messageApi);
   }, []);
 
   const isHome = location.pathname === Path.Home;
@@ -159,6 +186,7 @@ function Screen() {
         } ${getLang() === "ar" ? styles["rtl-screen"] : ""}`
       }
     >
+      {contextHolder}
       {isLogin ? (
         <>
           <LoginPage />
@@ -174,6 +202,7 @@ function Screen() {
               <Route path={Path.Masks} element={<MaskPage />} />
               <Route path={Path.Chat} element={<Chat />} />
               <Route path={Path.Settings} element={<Settings />} />
+              <Route path={Path.User} element={<User />} />
             </Routes>
           </div>
         </>

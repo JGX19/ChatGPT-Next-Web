@@ -17,6 +17,7 @@ export enum Path {
   Masks = "/masks",
   Auth = "/auth",
   Login = "/login",
+  User = "/user",
 }
 
 export enum SlotID {
@@ -115,3 +116,5 @@ export const DEFAULT_MODELS = [
 
 export const CHAT_PAGE_SIZE = 15;
 export const MAX_RENDER_MSG_COUNT = 45;
+
+export const BASE_URL = "http://127.0.0.1:7001";

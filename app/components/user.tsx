@@ -316,7 +316,7 @@ function SyncItems() {
   );
 }
 
-export function Settings() {
+export function User() {
   const navigate = useNavigate();
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const config = useAppConfig();
@@ -395,12 +395,8 @@ export function Settings() {
     <ErrorBoundary>
       <div className="window-header" data-tauri-drag-region>
         <div className="window-header-title">
-          <div className="window-header-main-title">
-            {Locale.Settings.Title}
-          </div>
-          <div className="window-header-sub-title">
-            {Locale.Settings.SubTitle}
-          </div>
+          <div className="window-header-main-title">{Locale.User.Title}</div>
+          <div className="window-header-sub-title">{Locale.User.SubTitle}</div>
         </div>
         <div className="window-actions">
           <div className="window-action-button"></div>
@@ -416,29 +412,28 @@ export function Settings() {
       </div>
       <div className={styles["settings"]}>
         <List>
-          <ListItem title={Locale.Settings.Avatar}>
-            <Popover
-              onClose={() => setShowEmojiPicker(false)}
-              content={
-                <AvatarPicker
-                  onEmojiClick={(avatar: string) => {
-                    updateConfig((config) => (config.avatar = avatar));
-                    setShowEmojiPicker(false);
-                  }}
-                />
+          <ListItem title={Locale.User.Card.Title} className="test">
+            <div>{Locale.User.Card.IdName}</div>
+            <input
+              type="text"
+              value={accessStore.openaiUrl}
+              placeholder="https://api.openai.com/"
+              onChange={(e) =>
+                accessStore.updateOpenAiUrl(e.currentTarget.value)
               }
-              open={showEmojiPicker}
-            >
-              <div
-                className={styles.avatar}
-                onClick={() => setShowEmojiPicker(true)}
-              >
-                <Avatar avatar={config.avatar} />
-              </div>
-            </Popover>
+            ></input>
+            <div>{Locale.User.Card.PasswordName}</div>
+            <input
+              type="text"
+              value={accessStore.openaiUrl}
+              placeholder="https://api.openai.com/"
+              onChange={(e) =>
+                accessStore.updateOpenAiUrl(e.currentTarget.value)
+              }
+            ></input>
           </ListItem>
 
-          {/* <ListItem
+          <ListItem
             title={Locale.Settings.Update.Version(currentVersion ?? "unknown")}
             subTitle={
               checkingUpdate
@@ -461,7 +456,7 @@ export function Settings() {
                 onClick={() => checkUpdate(true)}
               />
             )}
-          </ListItem> */}
+          </ListItem>
 
           <ListItem title={Locale.Settings.SendKey}>
             <Select

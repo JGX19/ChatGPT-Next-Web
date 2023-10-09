@@ -18,8 +18,8 @@ const cn = {
     Later: "稍后再说",
   },
   Login: {
-    Title: "登录 Ai食品圈",
-    // Title: "登录 低代码平台",
+    // Title: "登录 Ai食品圈",
+    Title: "登录 低代码平台",
     Tips: "新用户?",
     Register: "注册账号",
     Tabs: [
@@ -298,6 +298,15 @@ const cn = {
       SubTitle: "值越大，越有可能降低重复字词",
     },
   },
+  User: {
+    Title: "用户中心",
+    SubTitle: "",
+    Card: {
+      Title: "卡片兑换",
+      IdName: "卡号",
+      PasswordName: "密码",
+    },
+  },
   Store: {
     DefaultTopic: "新的聊天",
     BotHello: "有什么可以帮你的吗",
@@ -328,6 +337,8 @@ const cn = {
     Sysmessage: "你是一个助手",
   },
   Mask: {
+    // Title: "AI食品圈",
+    Title: "低代码平台",
     Name: "面具",
     Page: {
       Title: "预设角色面具",
