@@ -129,44 +129,55 @@ const loadAsyncGoogleFont = () => {
   document.head.appendChild(linkEl);
 };
 
-const checkToken = async (navigate, messageApi) => {
-  const token = localStorage.getItem("token");
-  if (token) {
-    const res = await Get("/api/user/verify", {
-      headers: {
-        Authorization: token,
-      },
-    });
-    if (res.status) {
-      messageApi.open({
-        type: "success",
-        content: res.msg,
-      });
-      console.log(res, "token验证结果");
-    } else {
-      messageApi.open({
-        type: "error",
-        content: res.msg,
-      });
-      navigate(Path.Login);
-    }
-    console.log(res, "token验证结果");
-  } else {
-    navigate(Path.Login);
-  }
-};
-
 function Screen() {
   const [messageApi, contextHolder] = message.useMessage();
+  const accessStore = useAccessStore();
 
   const config = useAppConfig();
   const location = useLocation();
   const navigate = useNavigate();
   const isMobileScreen = useMobileScreen();
 
+  // 校验登录状态
+  const checkToken = async () => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const res = await Get("/api/user/verify", {
+        headers: {
+          Authorization: token,
+        },
+      });
+      if (res.status) {
+        updateGpt();
+        messageApi.open({
+          type: "success",
+          content: res.msg,
+        });
+      } else {
+        messageApi.open({
+          type: "error",
+          content: res.msg,
+        });
+        navigate(Path.Login);
+      }
+      console.log(res, "token验证结果");
+    } else {
+      navigate(Path.Login);
+    }
+  };
+  // gpt-key赋值
+  const updateGpt = () => {
+    const url = "https://api.openai-proxy.org";
+    const key: any = localStorage.getItem("gpt-key");
+    accessStore.updateOpenAiUrl(url);
+    if (key != "1") {
+      accessStore.updateToken(key.slice(0, -1));
+    }
+  };
+
   useEffect(() => {
     loadAsyncGoogleFont();
-    checkToken(navigate, messageApi);
+    checkToken();
   }, []);
 
   const isHome = location.pathname === Path.Home;

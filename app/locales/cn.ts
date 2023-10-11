@@ -8,7 +8,8 @@ const cn = {
   Error: {
     Unauthorized: isApp
       ? "检测到无效 API Key，请前往[设置](/#/settings)页检查 API Key 是否配置正确。"
-      : "访问密码不正确或为空，请前往[登录](/#/auth)页输入正确的访问密码，或者在[设置](/#/settings)页填入你自己的 OpenAI API Key。",
+      : "账号余额不足，请前往[用户中心](/#/user)兑换卡券激活或在[用户中心](/#/user)页直接充值。",
+    // : "访问密码不正确或为空，请前往[登录](/#/auth)页输入正确的访问密码，或者在[设置](/#/settings)页填入你自己的 OpenAI API Key。",
   },
   Auth: {
     Title: "需要密码",
@@ -21,7 +22,22 @@ const cn = {
     // Title: "登录 Ai食品圈",
     Title: "登录 低代码平台",
     Tips: "新用户?",
-    Register: "注册账号",
+    Register: {
+      Title: "注册账号",
+      OkText: "注册",
+      CancelText: "取消",
+      PhoneText: "手机号码",
+      PhonePlaceholder: "在此处填写手机号",
+      PhoneMsg: "请输入手机号",
+      PasswordText: "设置密码",
+      PasswordPlaceholder: "在此处填写密码",
+      PasswordMsg: "请输入密码",
+      SmsText: "验证码",
+      SmsPlaceholder: "在此处填写验证码",
+      SmsMsg: "请输入验证码",
+      SmsButton: "发送验证码",
+      ReSmsButton: "重新发送",
+    },
     Tabs: [
       {
         label: "密码登录",
@@ -302,9 +318,17 @@ const cn = {
     Title: "用户中心",
     SubTitle: "",
     Card: {
-      Title: "卡片兑换",
+      Title: "兑换卡",
       IdName: "卡号",
       PasswordName: "密码",
+      IdPlaceholder: "请输入卡号",
+      PasswordPlaceholder: "请输入密码",
+      Exchange: "兑换",
+    },
+    Finance: {
+      Balance: "余额",
+      Charge: "消费记录",
+      SubTitle: "用户充值及消费记录",
     },
   },
   Store: {

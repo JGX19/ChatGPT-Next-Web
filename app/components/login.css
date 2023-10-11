@@ -1,4 +1,5 @@
-.ant-btn-default:hover {
+.ant-tabs-content-holder .ant-btn-default:hover,
+.register-model .ant-btn-default:hover {
   color: #fff !important;
   border-color: #fff !important;
 }

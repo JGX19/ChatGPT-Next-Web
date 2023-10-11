@@ -1,6 +1,6 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 
-import styles from "./settings.module.scss";
+import styles from "./user.module.scss";
 
 import ResetIcon from "../icons/reload.svg";
 import AddIcon from "../icons/add.svg";
@@ -44,279 +44,21 @@ import { Path, RELEASE_URL, UPDATE_URL } from "../constant";
 import { Prompt, SearchService, usePromptStore } from "../store/prompt";
 import { ErrorBoundary } from "./error";
 import { InputRange } from "./input-range";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Navigate } from "react-router-dom";
 import { Avatar, AvatarPicker } from "./emoji";
 import { getClientConfig } from "../config/client";
 import { useSyncStore } from "../store/sync";
 import { nanoid } from "nanoid";
 
-// 编辑面具提示词
-function EditPromptModal(props: { id: string; onClose: () => void }) {
-  const promptStore = usePromptStore();
-  const prompt = promptStore.get(props.id);
-
-  return prompt ? (
-    <div className="modal-mask">
-      <Modal
-        title={Locale.Settings.Prompt.EditModal.Title}
-        onClose={props.onClose}
-        actions={[
-          <IconButton
-            key=""
-            onClick={props.onClose}
-            text={Locale.UI.Confirm}
-            bordered
-          />,
-        ]}
-      >
-        <div className={styles["edit-prompt-modal"]}>
-          <input
-            type="text"
-            value={prompt.title}
-            readOnly={!prompt.isUser}
-            className={styles["edit-prompt-title"]}
-            onInput={(e) =>
-              promptStore.update(
-                props.id,
-                (prompt) => (prompt.title = e.currentTarget.value),
-              )
-            }
-          ></input>
-          <Input
-            value={prompt.content}
-            readOnly={!prompt.isUser}
-            className={styles["edit-prompt-content"]}
-            rows={10}
-            onInput={(e) =>
-              promptStore.update(
-                props.id,
-                (prompt) => (prompt.content = e.currentTarget.value),
-              )
-            }
-          ></Input>
-        </div>
-      </Modal>
-    </div>
-  ) : null;
-}
-
-// 自定义提示词列表
-function UserPromptModal(props: { onClose?: () => void }) {
-  const promptStore = usePromptStore();
-  const userPrompts = promptStore.getUserPrompts();
-  const builtinPrompts = SearchService.builtinPrompts;
-  const allPrompts = userPrompts.concat(builtinPrompts);
-  const [searchInput, setSearchInput] = useState("");
-  const [searchPrompts, setSearchPrompts] = useState<Prompt[]>([]);
-  const prompts = searchInput.length > 0 ? searchPrompts : allPrompts;
-
-  const [editingPromptId, setEditingPromptId] = useState<string>();
-
-  useEffect(() => {
-    if (searchInput.length > 0) {
-      const searchResult = SearchService.search(searchInput);
-      setSearchPrompts(searchResult);
-    } else {
-      setSearchPrompts([]);
-    }
-  }, [searchInput]);
-
-  return (
-    <div className="modal-mask">
-      <Modal
-        title={Locale.Settings.Prompt.Modal.Title}
-        onClose={() => props.onClose?.()}
-        actions={[
-          <IconButton
-            key="add"
-            onClick={() =>
-              promptStore.add({
-                id: nanoid(),
-                createdAt: Date.now(),
-                title: "Empty Prompt",
-                content: "Empty Prompt Content",
-              })
-            }
-            icon={<AddIcon />}
-            bordered
-            text={Locale.Settings.Prompt.Modal.Add}
-          />,
-        ]}
-      >
-        <div className={styles["user-prompt-modal"]}>
-          <input
-            type="text"
-            className={styles["user-prompt-search"]}
-            placeholder={Locale.Settings.Prompt.Modal.Search}
-            value={searchInput}
-            onInput={(e) => setSearchInput(e.currentTarget.value)}
-          ></input>
-
-          <div className={styles["user-prompt-list"]}>
-            {prompts.map((v, _) => (
-              <div className={styles["user-prompt-item"]} key={v.id ?? v.title}>
-                <div className={styles["user-prompt-header"]}>
-                  <div className={styles["user-prompt-title"]}>{v.title}</div>
-                  <div className={styles["user-prompt-content"] + " one-line"}>
-                    {v.content}
-                  </div>
-                </div>
-
-                <div className={styles["user-prompt-buttons"]}>
-                  {v.isUser && (
-                    <IconButton
-                      icon={<ClearIcon />}
-                      className={styles["user-prompt-button"]}
-                      onClick={() => promptStore.remove(v.id!)}
-                    />
-                  )}
-                  {v.isUser ? (
-                    <IconButton
-                      icon={<EditIcon />}
-                      className={styles["user-prompt-button"]}
-                      onClick={() => setEditingPromptId(v.id)}
-                    />
-                  ) : (
-                    <IconButton
-                      icon={<EyeIcon />}
-                      className={styles["user-prompt-button"]}
-                      onClick={() => setEditingPromptId(v.id)}
-                    />
-                  )}
-                  <IconButton
-                    icon={<CopyIcon />}
-                    className={styles["user-prompt-button"]}
-                    onClick={() => copyToClipboard(v.content)}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </Modal>
-
-      {editingPromptId !== undefined && (
-        <EditPromptModal
-          id={editingPromptId!}
-          onClose={() => setEditingPromptId(undefined)}
-        />
-      )}
-    </div>
-  );
-}
-
-// 重置所有设置
-function DangerItems() {
-  const chatStore = useChatStore();
-  const appConfig = useAppConfig();
-
-  return (
-    <List>
-      <ListItem
-        title={Locale.Settings.Danger.Reset.Title}
-        subTitle={Locale.Settings.Danger.Reset.SubTitle}
-      >
-        <IconButton
-          text={Locale.Settings.Danger.Reset.Action}
-          onClick={async () => {
-            if (await showConfirm(Locale.Settings.Danger.Reset.Confirm)) {
-              appConfig.reset();
-            }
-          }}
-          type="danger"
-        />
-      </ListItem>
-      <ListItem
-        title={Locale.Settings.Danger.Clear.Title}
-        subTitle={Locale.Settings.Danger.Clear.SubTitle}
-      >
-        <IconButton
-          text={Locale.Settings.Danger.Clear.Action}
-          onClick={async () => {
-            if (await showConfirm(Locale.Settings.Danger.Clear.Confirm)) {
-              chatStore.clearAllData();
-            }
-          }}
-          type="danger"
-        />
-      </ListItem>
-    </List>
-  );
-}
-
-function SyncItems() {
-  const syncStore = useSyncStore();
-  const webdav = syncStore.webDavConfig;
-
-  // not ready: https://github.com/Yidadaa/ChatGPT-Next-Web/issues/920#issuecomment-1609866332
-  return null;
-
-  return (
-    <List>
-      <ListItem
-        title={"上次同步：" + new Date().toLocaleString()}
-        subTitle={"20 次对话，100 条消息，200 提示词，20 面具"}
-      >
-        <IconButton
-          icon={<ResetIcon />}
-          text="同步"
-          onClick={() => {
-            syncStore.check().then(console.log);
-          }}
-        />
-      </ListItem>
-
-      <ListItem
-        title={"本地备份"}
-        subTitle={"20 次对话，100 条消息，200 提示词，20 面具"}
-      ></ListItem>
-
-      <ListItem
-        title={"Web Dav Server"}
-        subTitle={Locale.Settings.AccessCode.SubTitle}
-      >
-        <input
-          value={webdav.server}
-          type="text"
-          placeholder={"https://example.com"}
-          onChange={(e) => {
-            syncStore.update(
-              (config) => (config.server = e.currentTarget.value),
-            );
-          }}
-        />
-      </ListItem>
-
-      <ListItem title="Web Dav User Name" subTitle="user name here">
-        <input
-          value={webdav.username}
-          type="text"
-          placeholder={"username"}
-          onChange={(e) => {
-            syncStore.update(
-              (config) => (config.username = e.currentTarget.value),
-            );
-          }}
-        />
-      </ListItem>
-
-      <ListItem title="Web Dav Password" subTitle="password here">
-        <input
-          value={webdav.password}
-          type="text"
-          placeholder={"password"}
-          onChange={(e) => {
-            syncStore.update(
-              (config) => (config.password = e.currentTarget.value),
-            );
-          }}
-        />
-      </ListItem>
-    </List>
-  );
-}
+import "./user.css";
+import { Button, message } from "antd";
+import { Post } from "../api/request/http";
 
 export function User() {
+  const [messageApi, contextHolder] = message.useMessage();
+  const cardIdRef: any = useRef(null);
+  const cardPasswordRef: any = useRef(null);
+
   const navigate = useNavigate();
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const config = useAppConfig();
@@ -374,7 +116,7 @@ export function User() {
     showUsage && checkUsage();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
+  // esc键返回home
   useEffect(() => {
     const keydownEvent = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -391,8 +133,74 @@ export function User() {
   const clientConfig = useMemo(() => getClientConfig(), []);
   const showAccessCode = enabledAccessControl && !clientConfig?.isApp;
 
+  const [cardId, setCardId] = useState("");
+  const [cardPassword, setCardPassword] = useState("");
+  const [exchangeLoading, setExchangeLoading] = useState(false);
+
+  // gpt-key赋值
+  const updateGpt = () => {
+    const url = "https://api.openai-proxy.org";
+    const key: any = localStorage.getItem("gpt-key");
+    accessStore.updateOpenAiUrl(url);
+    if (key != "1") {
+      accessStore.updateToken(key.slice(0, -1));
+    }
+  };
+  // 兑换 卡券
+  const exchangeCard = async () => {
+    const token = localStorage.getItem("token");
+    setExchangeLoading(true);
+    const res = await Post(
+      "/api/card/active",
+      {
+        card_id: cardId,
+        secret: cardPassword,
+      },
+      {
+        headers: {
+          Authorization: token,
+        },
+      },
+    );
+    console.log(res.msg, res);
+    if (res.status) {
+      localStorage.setItem("gpt-key", res.data + "1");
+      // 刷新token
+      const refreshTokenRes = await Post(
+        "/api/user/refresh",
+        {
+          key: res.data,
+        },
+        {
+          headers: {
+            Authorization: token,
+          },
+        },
+      );
+      console.log(refreshTokenRes);
+      localStorage.setItem("token", refreshTokenRes.data.token);
+      updateGpt();
+      messageApi.open({
+        type: "success",
+        content: res.msg,
+      });
+      setCardId("");
+      setCardPassword("");
+      cardIdRef.current.value = "";
+      cardPasswordRef.current.value = "";
+      navigate(Path.Home);
+    } else {
+      messageApi.open({
+        type: "error",
+        content: res.msg,
+      });
+    }
+    setExchangeLoading(false);
+  };
+
   return (
     <ErrorBoundary>
+      {contextHolder}
       <div className="window-header" data-tauri-drag-region>
         <div className="window-header-title">
           <div className="window-header-main-title">{Locale.User.Title}</div>
@@ -412,332 +220,90 @@ export function User() {
       </div>
       <div className={styles["settings"]}>
         <List>
-          <ListItem title={Locale.User.Card.Title} className="test">
-            <div>{Locale.User.Card.IdName}</div>
-            <input
-              type="text"
-              value={accessStore.openaiUrl}
-              placeholder="https://api.openai.com/"
-              onChange={(e) =>
-                accessStore.updateOpenAiUrl(e.currentTarget.value)
-              }
-            ></input>
-            <div>{Locale.User.Card.PasswordName}</div>
-            <input
-              type="text"
-              value={accessStore.openaiUrl}
-              placeholder="https://api.openai.com/"
-              onChange={(e) =>
-                accessStore.updateOpenAiUrl(e.currentTarget.value)
-              }
-            ></input>
+          <ListItem title={Locale.User.Card.Title} className="vertical-flex">
+            <div className="user-flex">
+              <span style={{ lineHeight: "36px" }}>
+                {Locale.User.Card.IdName}
+              </span>
+              <input
+                type="text"
+                ref={cardIdRef}
+                placeholder={Locale.User.Card.IdPlaceholder}
+                onChange={(e) => {
+                  setCardId(e.currentTarget.value);
+                }}
+                style={{ display: "inline-block", maxWidth: "70%" }}
+              ></input>
+            </div>
+            <div className="user-flex">
+              <span style={{ lineHeight: "36px" }}>
+                {Locale.User.Card.PasswordName}
+              </span>
+              <input
+                type="text"
+                ref={cardPasswordRef}
+                placeholder={Locale.User.Card.PasswordPlaceholder}
+                onChange={(e) => {
+                  setCardPassword(e.currentTarget.value);
+                }}
+                style={{ display: "inline-block", maxWidth: "70%" }}
+              ></input>
+            </div>
+            <Button
+              type="default"
+              htmlType="submit"
+              block
+              loading={exchangeLoading}
+              className="login-form-button"
+              onClick={exchangeCard}
+            >
+              {Locale.User.Card.Exchange}
+            </Button>
           </ListItem>
+        </List>
 
+        <List>
           <ListItem
-            title={Locale.Settings.Update.Version(currentVersion ?? "unknown")}
+            title={Locale.User.Finance.Balance}
             subTitle={
-              checkingUpdate
-                ? Locale.Settings.Update.IsChecking
-                : hasNewVersion
-                ? Locale.Settings.Update.FoundUpdate(remoteId ?? "ERROR")
-                : Locale.Settings.Update.IsLatest
+              showUsage
+                ? loadingUsage
+                  ? Locale.Settings.Usage.IsChecking
+                  : Locale.Settings.Usage.SubTitle(
+                      usage?.used ?? "[?]",
+                      usage?.subscription ?? "[?]",
+                    )
+                : Locale.Settings.Usage.NoAccess
             }
           >
-            {checkingUpdate ? (
-              <LoadingIcon />
-            ) : hasNewVersion ? (
-              <Link href={updateUrl} target="_blank" className="link">
-                {Locale.Settings.Update.GoToUpdate}
-              </Link>
+            {!showUsage || loadingUsage ? (
+              <div />
             ) : (
               <IconButton
                 icon={<ResetIcon></ResetIcon>}
-                text={Locale.Settings.Update.CheckUpdate}
-                onClick={() => checkUpdate(true)}
+                text={Locale.Settings.Usage.Check}
+                onClick={() => checkUsage(true)}
               />
             )}
           </ListItem>
 
-          <ListItem title={Locale.Settings.SendKey}>
-            <Select
-              value={config.submitKey}
-              onChange={(e) => {
-                updateConfig(
-                  (config) =>
-                    (config.submitKey = e.target.value as any as SubmitKey),
-                );
-              }}
-            >
-              {Object.values(SubmitKey).map((v) => (
-                <option value={v} key={v}>
-                  {v}
-                </option>
-              ))}
-            </Select>
-          </ListItem>
-
-          <ListItem title={Locale.Settings.Theme}>
-            <Select
-              value={config.theme}
-              onChange={(e) => {
-                updateConfig(
-                  (config) => (config.theme = e.target.value as any as Theme),
-                );
-              }}
-            >
-              {Object.values(Theme).map((v) => (
-                <option value={v} key={v}>
-                  {v}
-                </option>
-              ))}
-            </Select>
-          </ListItem>
-
-          <ListItem title={Locale.Settings.Lang.Name}>
-            <Select
-              value={getLang()}
-              onChange={(e) => {
-                changeLang(e.target.value as any);
-              }}
-            >
-              {AllLangs.map((lang) => (
-                <option value={lang} key={lang}>
-                  {ALL_LANG_OPTIONS[lang]}
-                </option>
-              ))}
-            </Select>
-          </ListItem>
-
           <ListItem
-            title={Locale.Settings.FontSize.Title}
-            subTitle={Locale.Settings.FontSize.SubTitle}
-          >
-            <InputRange
-              title={`${config.fontSize ?? 14}px`}
-              value={config.fontSize}
-              min="12"
-              max="18"
-              step="1"
-              onChange={(e) =>
-                updateConfig(
-                  (config) =>
-                    (config.fontSize = Number.parseInt(e.currentTarget.value)),
-                )
-              }
-            ></InputRange>
-          </ListItem>
-
-          <ListItem
-            title={Locale.Settings.AutoGenerateTitle.Title}
-            subTitle={Locale.Settings.AutoGenerateTitle.SubTitle}
-          >
-            <input
-              type="checkbox"
-              checked={config.enableAutoGenerateTitle}
-              onChange={(e) =>
-                updateConfig(
-                  (config) =>
-                    (config.enableAutoGenerateTitle = e.currentTarget.checked),
-                )
-              }
-            ></input>
-          </ListItem>
-
-          <ListItem
-            title={Locale.Settings.SendPreviewBubble.Title}
-            subTitle={Locale.Settings.SendPreviewBubble.SubTitle}
-          >
-            <input
-              type="checkbox"
-              checked={config.sendPreviewBubble}
-              onChange={(e) =>
-                updateConfig(
-                  (config) =>
-                    (config.sendPreviewBubble = e.currentTarget.checked),
-                )
-              }
-            ></input>
-          </ListItem>
-        </List>
-
-        <List>
-          <ListItem
-            title={Locale.Settings.Mask.Splash.Title}
-            subTitle={Locale.Settings.Mask.Splash.SubTitle}
-          >
-            <input
-              type="checkbox"
-              checked={!config.dontShowMaskSplashScreen}
-              onChange={(e) =>
-                updateConfig(
-                  (config) =>
-                    (config.dontShowMaskSplashScreen =
-                      !e.currentTarget.checked),
-                )
-              }
-            ></input>
-          </ListItem>
-
-          <ListItem
-            title={Locale.Settings.Mask.Builtin.Title}
-            subTitle={Locale.Settings.Mask.Builtin.SubTitle}
-          >
-            <input
-              type="checkbox"
-              checked={config.hideBuiltinMasks}
-              onChange={(e) =>
-                updateConfig(
-                  (config) =>
-                    (config.hideBuiltinMasks = e.currentTarget.checked),
-                )
-              }
-            ></input>
-          </ListItem>
-        </List>
-
-        <List>
-          <ListItem
-            title={Locale.Settings.Prompt.Disable.Title}
-            subTitle={Locale.Settings.Prompt.Disable.SubTitle}
-          >
-            <input
-              type="checkbox"
-              checked={config.disablePromptHint}
-              onChange={(e) =>
-                updateConfig(
-                  (config) =>
-                    (config.disablePromptHint = e.currentTarget.checked),
-                )
-              }
-            ></input>
-          </ListItem>
-
-          <ListItem
-            title={Locale.Settings.Prompt.List}
-            subTitle={Locale.Settings.Prompt.ListCount(
-              builtinCount,
-              customCount,
-            )}
+            title={Locale.User.Finance.Charge}
+            subTitle={Locale.User.Finance.SubTitle}
           >
             <IconButton
-              icon={<EditIcon />}
-              text={Locale.Settings.Prompt.Edit}
-              onClick={() => setShowPromptModal(true)}
+              icon={<ResetIcon></ResetIcon>}
+              text={Locale.Settings.Usage.Check}
+              onClick={() => checkUsage(true)}
             />
           </ListItem>
         </List>
 
-        <List>
-          {showAccessCode ? (
-            <ListItem
-              title={Locale.Settings.AccessCode.Title}
-              subTitle={Locale.Settings.AccessCode.SubTitle}
-            >
-              <PasswordInput
-                value={accessStore.accessCode}
-                type="text"
-                placeholder={Locale.Settings.AccessCode.Placeholder}
-                onChange={(e) => {
-                  accessStore.updateCode(e.currentTarget.value);
-                }}
-              />
-            </ListItem>
-          ) : (
-            <></>
-          )}
-
-          {!accessStore.hideUserApiKey ? (
-            <>
-              <ListItem
-                title={Locale.Settings.Endpoint.Title}
-                subTitle={Locale.Settings.Endpoint.SubTitle}
-              >
-                <input
-                  type="text"
-                  value={accessStore.openaiUrl}
-                  placeholder="https://api.openai.com/"
-                  onChange={(e) =>
-                    accessStore.updateOpenAiUrl(e.currentTarget.value)
-                  }
-                ></input>
-              </ListItem>
-              <ListItem
-                title={Locale.Settings.Token.Title}
-                subTitle={Locale.Settings.Token.SubTitle}
-              >
-                <PasswordInput
-                  value={accessStore.token}
-                  type="text"
-                  placeholder={Locale.Settings.Token.Placeholder}
-                  onChange={(e) => {
-                    accessStore.updateToken(e.currentTarget.value);
-                  }}
-                />
-              </ListItem>
-            </>
-          ) : null}
-
-          {!accessStore.hideBalanceQuery ? (
-            <ListItem
-              title={Locale.Settings.Usage.Title}
-              subTitle={
-                showUsage
-                  ? loadingUsage
-                    ? Locale.Settings.Usage.IsChecking
-                    : Locale.Settings.Usage.SubTitle(
-                        usage?.used ?? "[?]",
-                        usage?.subscription ?? "[?]",
-                      )
-                  : Locale.Settings.Usage.NoAccess
-              }
-            >
-              {!showUsage || loadingUsage ? (
-                <div />
-              ) : (
-                <IconButton
-                  icon={<ResetIcon></ResetIcon>}
-                  text={Locale.Settings.Usage.Check}
-                  onClick={() => checkUsage(true)}
-                />
-              )}
-            </ListItem>
-          ) : null}
-
-          <ListItem
-            title={Locale.Settings.CustomModel.Title}
-            subTitle={Locale.Settings.CustomModel.SubTitle}
-          >
-            <input
-              type="text"
-              value={config.customModels}
-              placeholder="model1,model2,model3"
-              onChange={(e) =>
-                config.update(
-                  (config) => (config.customModels = e.currentTarget.value),
-                )
-              }
-            ></input>
-          </ListItem>
-        </List>
-
-        <SyncItems />
-
-        <List>
-          <ModelConfigList
-            modelConfig={config.modelConfig}
-            updateConfig={(updater) => {
-              const modelConfig = { ...config.modelConfig };
-              updater(modelConfig);
-              config.update((config) => (config.modelConfig = modelConfig));
-            }}
-          />
-        </List>
+        {/* <SyncItems />
 
         {shouldShowPromptModal && (
           <UserPromptModal onClose={() => setShowPromptModal(false)} />
-        )}
-
-        <DangerItems />
+        )} */}
       </div>
     </ErrorBoundary>
   );

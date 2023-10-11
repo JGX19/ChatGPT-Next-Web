@@ -1,0 +1,9 @@
+.vertical-flex {
+  flex-direction: column;
+  align-items: flex-start;
+}
+.user-flex {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px;
+}
