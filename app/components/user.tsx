@@ -142,9 +142,7 @@ export function User() {
     const url = "https://api.openai-proxy.org";
     const key: any = localStorage.getItem("gpt-key");
     accessStore.updateOpenAiUrl(url);
-    if (key != "1") {
-      accessStore.updateToken(key.slice(0, -1));
-    }
+    accessStore.updateToken(key.slice(0, -1));
   };
   // 兑换 卡券
   const exchangeCard = async () => {
@@ -196,6 +194,10 @@ export function User() {
       });
     }
     setExchangeLoading(false);
+  };
+  // 取消登录
+  const cancleLogin = () => {
+    console.log("取消登录");
   };
 
   return (
@@ -298,7 +300,9 @@ export function User() {
             />
           </ListItem>
         </List>
-
+        <Button type="primary" danger block onClick={cancleLogin}>
+          {Locale.User.CancleLogin}
+        </Button>
         {/* <SyncItems />
 
         {shouldShowPromptModal && (

@@ -158,11 +158,11 @@ function Screen() {
           type: "error",
           content: res.msg,
         });
-        navigate(Path.Login);
+        navigate(Path.Login, { replace: true });
       }
-      console.log(res, "token验证结果");
+      // console.log(res, "token验证结果");
     } else {
-      navigate(Path.Login);
+      navigate(Path.Login, { replace: true });
     }
   };
   // gpt-key赋值
@@ -172,7 +172,10 @@ function Screen() {
     accessStore.updateOpenAiUrl(url);
     if (key != "1") {
       accessStore.updateToken(key.slice(0, -1));
+    } else {
+      accessStore.updateToken("");
     }
+    // console.log(accessStore, 'gpt-key赋值')
   };
 
   useEffect(() => {

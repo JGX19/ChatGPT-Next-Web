@@ -3,3 +3,14 @@
   color: #fff !important;
   border-color: #fff !important;
 }
+.login-register-button {
+  width: 48%;
+  margin-right: 4%;
+}
+.sms-again-button {
+  width: 48%;
+  padding: 4px 10px;
+}
+.input-length > input {
+  max-width: 80%;
+}

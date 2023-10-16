@@ -136,7 +136,12 @@ export class ChatGPTApi implements LLMApi {
               } catch {}
 
               if (res.status === 401) {
-                responseTexts.push(Locale.Error.Unauthorized);
+                let token = localStorage.getItem("token");
+                if (token) {
+                  responseTexts.push(Locale.Error.Unauthorized);
+                } else {
+                  responseTexts.push(Locale.Error.Unlogin);
+                }
               }
 
               if (extraInfo) {

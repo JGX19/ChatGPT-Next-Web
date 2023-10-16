@@ -10,6 +10,7 @@ const cn = {
       ? "检测到无效 API Key，请前往[设置](/#/settings)页检查 API Key 是否配置正确。"
       : "账号余额不足，请前往[用户中心](/#/user)兑换卡券激活或在[用户中心](/#/user)页直接充值。",
     // : "访问密码不正确或为空，请前往[登录](/#/auth)页输入正确的访问密码，或者在[设置](/#/settings)页填入你自己的 OpenAI API Key。",
+    Unlogin: "用户未登录，请先前往[登录](/#/login)页登录或注册",
   },
   Auth: {
     Title: "需要密码",
@@ -19,8 +20,8 @@ const cn = {
     Later: "稍后再说",
   },
   Login: {
-    // Title: "登录 Ai食品圈",
-    Title: "登录 低代码平台",
+    Title: "登录 Ai食品圈",
+    // Title: "登录 低代码平台",
     Tips: "新用户?",
     Register: {
       Title: "注册账号",
@@ -59,6 +60,8 @@ const cn = {
           input2: "在此处填写验证码",
           require2: "请输入验证码",
           verify: "点击验证",
+          sendSms: "发送验证码",
+          reSms: "重新发送",
           confirm: "登录 ",
         },
       },
@@ -330,6 +333,7 @@ const cn = {
       Charge: "消费记录",
       SubTitle: "用户充值及消费记录",
     },
+    CancleLogin: "取消登录",
   },
   Store: {
     DefaultTopic: "新的聊天",
@@ -361,8 +365,8 @@ const cn = {
     Sysmessage: "你是一个助手",
   },
   Mask: {
-    // Title: "AI食品圈",
-    Title: "低代码平台",
+    Title: "AI食品圈",
+    // Title: "低代码平台",
     Name: "面具",
     Page: {
       Title: "预设角色面具",

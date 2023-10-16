@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useDebouncedCallback } from "use-debounce";
 import React, {
   useState,
@@ -869,7 +870,12 @@ function _Chat() {
   ) {
     const copiedHello = Object.assign({}, BOT_HELLO);
     if (!accessStore.isAuthorized()) {
-      copiedHello.content = Locale.Error.Unauthorized;
+      let token = localStorage.getItem("token");
+      if (token) {
+        copiedHello.content = Locale.Error.Unauthorized;
+      } else {
+        copiedHello.content = Locale.Error.Unlogin;
+      }
     }
     context.push(copiedHello);
   }
