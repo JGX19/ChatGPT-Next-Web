@@ -141,7 +141,7 @@ export function User() {
   const updateGpt = () => {
     const url = "https://api.openai-proxy.org";
     const key: any = localStorage.getItem("gpt-key");
-    accessStore.updateOpenAiUrl(url);
+    // accessStore.updateOpenAiUrl(url);
     accessStore.updateToken(key.slice(0, -1));
   };
   // 兑换 卡券
@@ -198,6 +198,9 @@ export function User() {
   // 取消登录
   const cancleLogin = () => {
     console.log("取消登录");
+    localStorage.removeItem("token");
+    localStorage.removeItem("gpt-key");
+    navigate(Path.Login, { replace: true });
   };
 
   return (

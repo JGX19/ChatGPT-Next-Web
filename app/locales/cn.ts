@@ -69,6 +69,8 @@ const cn = {
     Legal: "登陆前我们默认你已知晓并同意",
     LegalLink: "《服务条款》",
     FindPassword: "找回密码?",
+    ChangePassword: "重置密码",
+    ChangeConfirm: "提交",
   },
   ChatItem: {
     ChatItemCount: (count: number) => `${count} 条对话`,
@@ -333,7 +335,7 @@ const cn = {
       Charge: "消费记录",
       SubTitle: "用户充值及消费记录",
     },
-    CancleLogin: "取消登录",
+    CancleLogin: "退出登录",
   },
   Store: {
     DefaultTopic: "新的聊天",

@@ -3,6 +3,7 @@ import {
   DEFAULT_MODELS,
   OpenaiPath,
   REQUEST_TIMEOUT_MS,
+  BASE_URL,
 } from "@/app/constant";
 import { useAccessStore, useAppConfig, useChatStore } from "@/app/store";
 
@@ -75,11 +76,13 @@ export class ChatGPTApi implements LLMApi {
     console.log("[Request] openai payload: ", requestPayload);
 
     const shouldStream = !!options.config.stream;
+    // 增加对话控制功能
     const controller = new AbortController();
     options.onController?.(controller);
 
     try {
-      const chatPath = this.path(OpenaiPath.ChatPath);
+      // const chatPath = this.path(OpenaiPath.ChatPath);
+      const chatPath = `${BASE_URL}/v1/chat/completions`;
       const chatPayload = {
         method: "POST",
         body: JSON.stringify(requestPayload),

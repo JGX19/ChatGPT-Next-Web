@@ -169,7 +169,7 @@ function Screen() {
   const updateGpt = () => {
     const url = "https://api.openai-proxy.org";
     const key: any = localStorage.getItem("gpt-key");
-    accessStore.updateOpenAiUrl(url);
+    // accessStore.updateOpenAiUrl(url);
     if (key != "1") {
       accessStore.updateToken(key.slice(0, -1));
     } else {

@@ -685,7 +685,9 @@ function _Chat() {
   };
 
   const doSubmit = (userInput: string) => {
+    // 输入为空
     if (userInput.trim() === "") return;
+    // 输入匹配指令
     const matchCommand = chatCommands.match(userInput);
     if (matchCommand.matched) {
       setUserInput("");
@@ -693,6 +695,7 @@ function _Chat() {
       matchCommand.invoke();
       return;
     }
+    // 提交对话
     setIsLoading(true);
     chatStore.onUserInput(userInput).then(() => setIsLoading(false));
     localStorage.setItem(LAST_INPUT_KEY, userInput);
